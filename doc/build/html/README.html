@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AutoShifts: Design ‘how and why?’ &mdash; MathDemo  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="MathDemo  documentation" href="index.html"/>
+        <link rel="next" title="Sphinx-Demo" href="modules.html"/>
+        <link rel="prev" title="Welcome to MathDemo’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MathDemo
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AutoShifts: Design ‘how and why?’</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#libraries-this-project-uses">Libraries this project uses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#how-to-use-this-project">How to use this project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#how-to-generate-documentations">How to generate documentations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Sphinx-Demo</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MathDemo</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>AutoShifts: Design ‘how and why?’</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/README.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="autoshifts-design-how-and-why">
+<h1>AutoShifts: Design ‘how and why?’<a class="headerlink" href="#autoshifts-design-how-and-why" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This project aims to generate automatic shift vectors between old landbase (now onwards referred as source) to new landbase (now onwards referred as target).</p>
+<p>Automatic Shift vector generation process divided mainly in following parts:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>Harris corner detection (subpixel.py)</dt>
+<dd><ul class="first last">
+<li>Generate corners for the source file</li>
+<li>Generate corners for the target file</li>
+<li>[Optional] - Generate corners for source + target in a same out file [for better visibility]</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Convert source and target rasters to vector files (raster_to_vector.py)</dt>
+<dd><ul class="first last">
+<li>Also perform line smoothing (Douglas and Peucker Algo) to reduce the number of vertices on generated polygons</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Edge detection (edge_detection.py)</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>So far we have ‘corners’ from #1 and ‘polygons’ from #2. Ideally, if D&amp;P algo would have produced proper polygon, we could have started generating shift vectors using them.</dt>
+<dd>But unfortunately, polygons generated by D&amp;P have more vertices than ideal vector representation should have.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>So idea is to use ‘corners’ and ‘polygons’ generated from above steps. And, for every polygon find the nearby corners in a given vicinity, draw line between them.</dt>
+<dd>Using this process it should give us proper box containing given polygon. This box would be ideal ideal candidate to generate shifts.</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="libraries-this-project-uses">
+<h2>Libraries this project uses<a class="headerlink" href="#libraries-this-project-uses" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>OpenCV <span class="classifier-delimiter">:</span> <span class="classifier">for harris corner detection</span></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>OpenCV python interfaces are basically wrappers around underneath c++ libraries.</dt>
+<dd><ul class="first last">
+<li><a class="reference external" href="https://github.com/opencv/opencv/tree/master/modules">Github link</a></li>
+<li><a class="reference external" href="https://github.com/opencv">Website</a></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Examples:</dt>
+<dd><ul class="first last">
+<li><a class="reference external" href="http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_features_harris/py_features_harris.html">Corner Harris Tutorial</a></li>
+<li><a class="reference external" href="http://docs.opencv.org/2.4/modules/imgproc/doc/feature_detection.html?highlight=cornerharris#cornerharris">API Doc</a></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Raster to vector conversion</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><a class="reference external" href="https://github.com/mapbox/rasterio">Rasterio</a></dt>
+<dd><ul class="first last">
+<li>Essentially a python wrapper around <a class="reference external" href="http://gdal.org/">GDAL</a></li>
+<li>Used to read raster image. Potentially, can be used to write rasters.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference external" href="https://github.com/Toblerity/Fiona">Fiona</a></dt>
+<dd><ul class="first last">
+<li>Again, wrapper around GDAL and OGR.</li>
+<li>Used to read and write vector file (polygons in shape file)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference external" href="https://github.com/Toblerity/Shapely">shapely</a></dt>
+<dd><ul class="first last">
+<li>Python wrapper around <a class="reference external" href="http://trac.osgeo.org/geos/">GEOS</a></li>
+<li>Used to manipulate shapes (like Douglas &amp; Peucker smoothing)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Vector RTree Index</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><a class="reference external" href="https://github.com/Toblerity/rtree">rtree</a></dt>
+<dd><ul class="first last">
+<li>Python bindings for c++ <a class="reference external" href="https://libspatialindex.github.io/">libspatialindex 1.7+</a></li>
+<li>Used in edge_detection.py to find nearest neighbourhood [<a class="reference external" href="http://toblerity.org/rtree/tutorial.html">Tutorial</a>]</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Project documentation</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a></dt>
+<dd><ul class="first last">
+<li>HTML and PDF documentation.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="how-to-use-this-project">
+<h1>How to use this project<a class="headerlink" href="#how-to-use-this-project" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>Once you check out the source code from the bitbucket repo, follow given below steps.</dt>
+<dd><ul class="first last simple">
+<li>Go to project home folder <em>AutoShift</em></li>
+<li>Before one actually run the code, has to configure the <em>SourceFile, TargetFile</em> and <em>OutputFile</em> sections in <em>config/config.conf</em> file.</li>
+<li><dl class="first docutils">
+<dt>Run <em>Autoshift/main.py</em> file.</dt>
+<dd><ul class="first last">
+<li><code class="docutils literal"><span class="pre">cd</span> <span class="pre">Autoshift</span></code></li>
+<li><code class="docutils literal"><span class="pre">python</span> <span class="pre">main.py</span></code></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="how-to-generate-documentations">
+<h1>How to generate documentations<a class="headerlink" href="#how-to-generate-documentations" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>This project uses <em>Sphinx</em> for auto doc generation. Go to project’s <strong>docs</strong> directory.</dt>
+<dd><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">AutoShift&gt;</span> <span class="pre">cd</span> <span class="pre">docs</span></code></li>
+<li><code class="docutils literal"><span class="pre">AutoShift\docs&gt;</span> <span class="pre">sphinx-quickstart</span></code> (Modify .conf file if reqiured)</li>
+<li><code class="docutils literal"><span class="pre">AutoShift\docs&gt;</span> <span class="pre">sphinx-apidoc</span> <span class="pre">--force</span> <span class="pre">-d</span> <span class="pre">4</span> <span class="pre">-o</span> <span class="pre">source</span> <span class="pre">../</span></code></li>
+<li><code class="docutils literal"><span class="pre">AutoShift\docs&gt;</span> <span class="pre">make.bat</span> <span class="pre">html</span></code></li>
+<li><dl class="first docutils">
+<dt>To generate pdf</dt>
+<dd><code class="docutils literal"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">pdf</span> <span class="pre">source</span> <span class="pre">build/pdf</span></code></dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>To generate epub ebook</dt>
+<dd><code class="docutils literal"><span class="pre">make.bat</span> <span class="pre">latex</span></code></dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p><strong>The HTML pages will be generated in in docs/build/html directory.</strong></p>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="modules.html" class="btn btn-neutral float-right" title="Sphinx-Demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to MathDemo’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Jadav.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
